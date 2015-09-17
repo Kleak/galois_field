@@ -1,4 +1,4 @@
-part of reed_solomon;
+library galois_field;
 
 List<int> GF_EXP = new List.filled(512, 1);
 List<int> GF_LOG = new List.filled(256, 0);
