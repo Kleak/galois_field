@@ -1,0 +1,8 @@
+name: galois_field
+version: 0.0.1
+description: Galois Field implementation in pure Dart
+author: Kevin Segaud <segaud.kevin@gmail.com>
+homepage: https://github.com/Kleak/galois_field
+
+environment:
+  sdk: '>=1.0.0 <2.0.0'
