@@ -1,5 +1,7 @@
 library galois_field;
 
+import "dart:typed_data";
+
 List<int> GF_EXP = new List.filled(512, 1);
 List<int> GF_LOG = new List.filled(256, 0);
 
