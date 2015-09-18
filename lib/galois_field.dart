@@ -5,13 +5,6 @@ import "dart:typed_data";
 List<int> GF_EXP = new List.filled(512, 1);
 List<int> GF_LOG = new List.filled(256, 0);
 
-initTables() => _initTables(0x11d);
-
-int gfMultiply(int x, int y) {
-  if (x == 0 || y == 0) return 0;
-  return GF_EXP[GF_LOG[x] + GF_LOG[y]];
-}
-
 int gfDivide(int x, int y) {
   if (y == 0) {
     throw "Divide by 0";
@@ -26,15 +19,9 @@ int gfInverse(int y) {
   return gfDivide(1, y);
 }
 
-/**
- * Multiplies a polynomial by a scalar
- */
-List<int> gfPolynomialScale(List<int> p, int x) {
-  List<int> r = new List.filled(p.length, 0);
-  for (int i = 0; i < p.length; i++) {
-    r[i] = gfMultiply(p[i], x);
-  }
-  return <int>[]..addAll(r);
+int gfMultiply(int x, int y) {
+  if (x == 0 || y == 0) return 0;
+  return GF_EXP[GF_LOG[x] + GF_LOG[y]];
 }
 
 /**
@@ -49,30 +36,6 @@ List<int> gfPolynomialAdd(List<int> p, List<int> q) {
     r[i + r.length - q.length] ^= q[i];
   }
   return <int>[]..addAll(r);
-}
-
-/**
- * Multiplies two polynomials
- */
-List<int> gfPolynomialMultiply(List<int> p, List<int> q) {
-  List<int> r = new List.filled(p.length + q.length - 1, 0);
-  for (int j = 0; j < q.length; j++) {
-    for (int i = 0; i < p.length; i++) {
-      r[i + j] ^= gfMultiply(p[i], q[j]);
-    }
-  }
-  return <int>[]..addAll(r);
-}
-
-/**
- * Evaluate a polynomial at a particular value of x, producing a scalar result
- */
-int gfPolynomialEval(List<int> p, int x) {
-  int y = p[0];
-  for (int i = 1; i < p.length; i++) {
-    y = gfMultiply(y, x) ^ p[i];
-  }
-  return y;
 }
 
 /**
@@ -94,19 +57,56 @@ List<int> gfPolynomialDivide(List<int> dividend, List<int> divisor) {
 }
 
 /**
+ * Evaluate a polynomial at a particular value of x, producing a scalar result
+ */
+int gfPolynomialEval(List<int> p, int x) {
+  int y = p[0];
+  for (int i = 1; i < p.length; i++) {
+    y = gfMultiply(y, x) ^ p[i];
+  }
+  return y;
+}
+
+/**
+ * Multiplies two polynomials
+ */
+List<int> gfPolynomialMultiply(List<int> p, List<int> q) {
+  List<int> r = new List.filled(p.length + q.length - 1, 0);
+  for (int j = 0; j < q.length; j++) {
+    for (int i = 0; i < p.length; i++) {
+      r[i + j] ^= gfMultiply(p[i], q[j]);
+    }
+  }
+  return <int>[]..addAll(r);
+}
+
+/**
+ * Multiplies a polynomial by a scalar
+ */
+List<int> gfPolynomialScale(List<int> p, int x) {
+  List<int> r = new List.filled(p.length, 0);
+  for (int i = 0; i < p.length; i++) {
+    r[i] = gfMultiply(p[i], x);
+  }
+  return <int>[]..addAll(r);
+}
+
+void initTables([int size = 255]) => _initTables(0x11d, size);
+
+/**
  * Precompute the logarithm and anti-log tables for faster computation later, using the provided primitive polynomial
  */
-void _initTables(int prim) {
+void _initTables(int prim, int size) {
   int x = 1;
-  for (int i = 1; i < 255; i++) {
+  for (int i = 1; i < size; i++) {
     x <<= 1;
-    if (x & 0x100 == 256) {
+    if (x & (size + 1) == size + 1) {
       x ^= prim;
     }
     GF_EXP[i] = x;
     GF_LOG[x] = i;
   }
-  for (int i = 255; i < 512; i++) {
-    GF_EXP[i] = GF_EXP[i - 255];
+  for (int i = size; i < (size + 1) * 2; i++) {
+    GF_EXP[i] = GF_EXP[i - size];
   }
 }
