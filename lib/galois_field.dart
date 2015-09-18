@@ -91,22 +91,22 @@ List<int> gfPolynomialScale(List<int> p, int x) {
   return <int>[]..addAll(r);
 }
 
-void initTables([int size = 255]) => _initTables(0x11d, size);
+void initTables() => _initTables(0x11d);
 
 /**
  * Precompute the logarithm and anti-log tables for faster computation later, using the provided primitive polynomial
  */
-void _initTables(int prim, int size) {
+void _initTables(int prim) {
   int x = 1;
-  for (int i = 1; i < size; i++) {
+  for (int i = 1; i < 255; i++) {
     x <<= 1;
-    if (x & (size + 1) == size + 1) {
+    if (x & 256 == 256) {
       x ^= prim;
     }
     GF_EXP[i] = x;
     GF_LOG[x] = i;
   }
-  for (int i = size; i < (size + 1) * 2; i++) {
-    GF_EXP[i] = GF_EXP[i - size];
+  for (int i = 255; i < 512; i++) {
+    GF_EXP[i] = GF_EXP[i - 255];
   }
 }
