@@ -2,8 +2,8 @@ library galois_field;
 
 import "dart:typed_data";
 
-List<int> GF_EXP = new List.filled(512, 1);
-List<int> GF_LOG = new List.filled(256, 0);
+List<int> GF_EXP;
+List<int> GF_LOG;
 
 int gfDivide(int x, int y) {
   if (y == 0) {
@@ -101,6 +101,8 @@ void initTables() => _initTables(0x11d);
  * Precompute the logarithm and anti-log tables for faster computation later, using the provided primitive polynomial
  */
 void _initTables(int prim) {
+  GF_EXP = new List.filled(512, 1);
+  GF_LOG = new List.filled(256, 0);
   int x = 1;
   for (int i = 1; i < 255; i++) {
     x <<= 1;
