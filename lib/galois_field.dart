@@ -1,9 +1,12 @@
 library galois_field;
 
 import "dart:typed_data";
+import "dart:math";
 
 List<int> GF_EXP;
 List<int> GF_LOG;
+int GF_EXP_SIZE;
+int GF_LOG_SIZE;
 
 int gfDivide(int x, int y) {
   if (y == 0) {
@@ -12,7 +15,7 @@ int gfDivide(int x, int y) {
   if (x == 0) {
     return 0;
   }
-  return GF_EXP[GF_LOG[x] + 255 - GF_LOG[y]];
+  return GF_EXP[GF_LOG[x] + (GF_LOG_SIZE - 1) - GF_LOG[y]];
 }
 
 int gfInverse(int y) {
@@ -95,24 +98,31 @@ List<int> gfPolynomialScale(List<int> p, int x) {
  * TODO(kleak): see how we can let the user choose
  * Possible value here (0x0, 0x3, 0x7, 0xB, 0x13, 0x25, 0x43, 0x83, 0x11D, 0x211, 0x409, 0x805, 0x1053, 0x201B, 0x402B, 0x8003, 0x1100B)
  */
-void initTables() => _initTables(0x11d);
+void initTables() => _initTables(0x11D);
 
 /**
  * Precompute the logarithm and anti-log tables for faster computation later, using the provided primitive polynomial
  */
 void _initTables(int prim) {
-  GF_EXP = new List.filled(512, 1);
-  GF_LOG = new List.filled(256, 0);
+  List<int> prims = [
+    0x0, 0x3, 0x7, 0xB, 0x13, 0x25, 0x43, 0x83, 0x11D, 0x211, 0x409, 0x805, 0x1053, 0x201B, 0x402B, 0x8003, 0x1100B
+  ];
+  int pos = prims.indexOf(prim);
+  GF_LOG_SIZE = pow(2, pos);
+  GF_EXP_SIZE = GF_LOG_SIZE * 2;
+  GF_EXP = new List.filled(GF_EXP_SIZE, 1);
+  GF_LOG = new List.filled(GF_LOG_SIZE, 0);
+  int log_minus_one = GF_LOG_SIZE - 1;
   int x = 1;
-  for (int i = 1; i < 255; i++) {
+  for (int i = 1; i < log_minus_one; i++) {
     x <<= 1;
-    if (x & 256 == 256) {
+    if (x & GF_LOG_SIZE == GF_LOG_SIZE) {
       x ^= prim;
     }
     GF_EXP[i] = x;
     GF_LOG[x] = i;
   }
-  for (int i = 255; i < 512; i++) {
-    GF_EXP[i] = GF_EXP[i - 255];
+  for (int i = log_minus_one; i < GF_EXP_SIZE; i++) {
+    GF_EXP[i] = GF_EXP[i - log_minus_one];
   }
 }
