@@ -1,5 +1,5 @@
 name: galois_field
-version: 0.0.4
+version: 0.0.5
 description: Galois Field implementation in pure Dart
 author: Kevin Segaud <segaud.kevin@gmail.com>
 homepage: https://github.com/Kleak/galois_field
