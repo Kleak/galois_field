@@ -2,8 +2,8 @@ library galois_field;
 
 import "dart:typed_data";
 
-List<int> GF_EXP = new List.filled(512, 1);
-List<int> GF_LOG = new List.filled(256, 0);
+List<int> _GF_EXP = new List.filled(512, 1);
+List<int> _GF_LOG = new List.filled(256, 0);
 
 int gfDivide(int x, int y) {
   if (y == 0) {
@@ -12,7 +12,7 @@ int gfDivide(int x, int y) {
   if (x == 0) {
     return 0;
   }
-  return GF_EXP[GF_LOG[x] + 255 - GF_LOG[y]];
+  return _GF_EXP[_GF_LOG[x] + 255 - _GF_LOG[y]];
 }
 
 int gfInverse(int y) {
@@ -21,7 +21,7 @@ int gfInverse(int y) {
 
 int gfMultiply(int x, int y) {
   if (x == 0 || y == 0) return 0;
-  return GF_EXP[GF_LOG[x] + GF_LOG[y]];
+  return _GF_EXP[_GF_LOG[x] + _GF_LOG[y]];
 }
 
 /**
@@ -103,10 +103,10 @@ void _initTables(int prim) {
     if (x & 256 == 256) {
       x ^= prim;
     }
-    GF_EXP[i] = x;
-    GF_LOG[x] = i;
+    _GF_EXP[i] = x;
+    _GF_LOG[x] = i;
   }
   for (int i = 255; i < 512; i++) {
-    GF_EXP[i] = GF_EXP[i - 255];
+    _GF_EXP[i] = _GF_EXP[i - 255];
   }
 }
